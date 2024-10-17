@@ -1,3 +1,6 @@
+myproject/myproject/aws_secrets.env
+venv/*
+venv/
 # Byte-compiled / optimized / DLL files
 *.zip
 __pycache__/

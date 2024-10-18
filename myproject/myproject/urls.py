@@ -17,10 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from documents import views as document_views
+from django.conf.urls.static import static
+from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),  # Adds login and logout views
     path('documents/', include('documents.urls')),
     path('', document_views.home, name='home'),  # For homepage view
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

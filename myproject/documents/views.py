@@ -3,6 +3,9 @@ from .forms import DocumentForm
 from .models import Document
 from django.contrib.auth.decorators import login_required
 
+def home(request):
+    return render(request, 'home.html')
+
 @login_required
 def document_upload(request):
     if request.method == 'POST':

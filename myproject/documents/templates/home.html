@@ -18,27 +18,28 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="{% url 'document_upload' %}">Upload Document</a>
+                        <a class="nav-link" href="{% url 'document_upload' %}">Upload Document</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'document_view' %}">View Documents</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link"  href="{% url 'logout' %}" onclick="return confirm('Are you sure you want to logout?');">Logout</a>
+                        <a class="nav-link" href="{% url 'logout' %}" onclick="return confirm('Are you sure you want to logout?');">Logout</a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
+
+    <!-- Main Content -->
     <div class="container mt-5">
-        <h1>Welcome to Document Management</h1>
-        <p>Choose an option below:</p>
-        <div class="btn-group" role="group" aria-label="Basic example">
+        <h1 class="mb-4">Welcome to Document Management</h1>
+        <p class="lead">Choose an option below:</p>
+        <div class="d-grid gap-2 d-md-block">
             <!-- Link to Document Upload -->
-            <a href="{% url 'document_upload' %}" class="btn btn-primary">Upload Documents</a>
+            <a href="{% url 'document_upload' %}" class="btn btn-primary btn-lg">Upload Documents</a>
             <!-- Link to View Documents -->
-            <a href="{% url 'document_view' %}" class="btn btn-secondary">View Documents</a>
-            <!-- This should ideally be part of the view documents page, where each document has a delete button next to it -->
+            <a href="{% url 'document_view' %}" class="btn btn-secondary btn-lg">View Documents</a>
         </div>
     </div>
 

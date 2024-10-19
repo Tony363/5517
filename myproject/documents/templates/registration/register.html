@@ -30,17 +30,12 @@
             </div>
         </div>
     </nav>
-    <div class="container mt-5">
-        <h1>Welcome to Document Management</h1>
-        <p>Choose an option below:</p>
-        <div class="btn-group" role="group" aria-label="Basic example">
-            <!-- Link to Document Upload -->
-            <a href="{% url 'document_upload' %}" class="btn btn-primary">Upload Documents</a>
-            <!-- Link to View Documents -->
-            <a href="{% url 'document_view' %}" class="btn btn-secondary">View Documents</a>
-            <!-- This should ideally be part of the view documents page, where each document has a delete button next to it -->
-        </div>
-    </div>
+<h2>Register</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Register</button>
+</form>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>

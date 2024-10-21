@@ -152,3 +152,4 @@ STATIC_ROOT = 'static/'
 
 MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'documents')
+

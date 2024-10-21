@@ -8,11 +8,16 @@ from django.contrib.auth import logout
 from .forms import DocumentForm, UploadFileForm
 from .models import Document
 from botocore.exceptions import NoCredentialsError
-import os
-import boto3
+
+
 from django.views.decorators.http import require_POST
 from django.contrib.auth import login
 from .forms import RegisterForm
+
+
+import os
+import boto3
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError
 from dotenv import load_dotenv
 
 
@@ -46,13 +51,15 @@ def document_upload(request):
         if form.is_valid():
             file = request.FILES['file']
             file_name = default_storage.save(file.name, file)
-            print("WTF",file_name)
-            local_file_path = default_storage.path(file_name)
 
-            # Upload to S3
-            if upload_to_s3(local_file_path, bucket_name, file_name):
-                file_url = f"https://{bucket_name}.s3.amazonaws.com/{file_name}"
-                messages.success(request, f'Success! Your file is saved at {file_url}')
+            # Directly use the file URL or handle file content
+            file_url = default_storage.url(file_name)
+
+            # Upload to S3 using the file's content
+            # Assuming `upload_to_s3` can be modified to take file content or a file-like object
+            if upload_to_s3(default_storage.open(file_name, 'rb'), bucket_name, file_name):
+                full_url = f"https://{bucket_name}.s3.amazonaws.com/{file_name}"
+                messages.success(request, f'Success! Your file is saved at {full_url}')
             else:
                 messages.error(request, 'Failed to upload to S3')
                 return HttpResponse("Failed to upload to S3", status=500)
@@ -64,6 +71,32 @@ def document_upload(request):
         form = UploadFileForm()  # An unbound form
 
     return render(request, 'documents/upload_form.html', {'form': form})
+
+# @login_required
+# def document_upload(request):
+#     if request.method == 'POST':
+#         form = UploadFileForm(request.POST, request.FILES)
+#         if form.is_valid():
+#             file = request.FILES['file']
+#             file_name = default_storage.save(file.name, file)
+#             print("WTF",file_name)
+#             local_file_path = default_storage.path(file_name)
+
+#             # Upload to S3
+#             if upload_to_s3(local_file_path, bucket_name, file_name):
+#                 file_url = f"https://{bucket_name}.s3.amazonaws.com/{file_name}"
+#                 messages.success(request, f'Success! Your file is saved at {file_url}')
+#             else:
+#                 messages.error(request, 'Failed to upload to S3')
+#                 return HttpResponse("Failed to upload to S3", status=500)
+#         else:
+#             messages.error(request, 'Form is not valid')
+#             return HttpResponse("Form is not valid", status=400)
+#         return redirect('home')
+#     else:
+#         form = UploadFileForm()  # An unbound form
+
+#     return render(request, 'documents/upload_form.html', {'form': form})
 
 
 @login_required
@@ -148,24 +181,49 @@ def serve_document(request, filename):
         stream.close()
 
 
-
-def upload_to_s3(file_name, bucket, object_name=None):
-    """
-    Upload a file to an S3 bucket using settings from Django settings.py
-
-    :param file_name: File to upload
-    :param bucket: Bucket to upload to
-    :param object_name: S3 object name. If not specified, file_name is used
-    :return: True if file was uploaded, else False
-    """
+def upload_to_s3(file_obj, bucket_name, file_name):
+    # # Initialize a session using your credentials
+    # session = boto3.Session(
+    #     aws_access_key_id='YOUR_AWS_ACCESS_KEY_ID',
+    #     aws_secret_access_key='YOUR_AWS_SECRET_ACCESS_KEY',
+    #     region_name='YOUR_AWS_REGION'  # e.g., 'us-west-2'
+    # )
+    # # Create an S3 client using this session
+    # s3 = session.client('s3')
 
     try:
-        # Upload the file
-        s3_client.upload_file(file_name, bucket, object_name)
+        # Upload the file to S3
+        s3_client.upload_fileobj(
+            file_obj,  # File object opened in binary-read mode
+            bucket_name,
+            file_name,
+        )
         return True
-    except NoCredentialsError:
-        print("Credentials not available")
+    except (NoCredentialsError, PartialCredentialsError) as e:
+        print(f"Credentials error: {e}")
         return False
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False
+
+
+# def upload_to_s3(file_name, bucket, object_name=None):
+#     """
+#     Upload a file to an S3 bucket using settings from Django settings.py
+
+#     :param file_name: File to upload
+#     :param bucket: Bucket to upload to
+#     :param object_name: S3 object name. If not specified, file_name is used
+#     :return: True if file was uploaded, else False
+#     """
+
+#     try:
+#         # Upload the file
+#         s3_client.upload_file(file_name, bucket, object_name)
+#         return True
+#     except NoCredentialsError:
+#         print("Credentials not available")
+#         return False
 
 
 def register(request):

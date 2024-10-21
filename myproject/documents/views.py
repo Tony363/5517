@@ -119,7 +119,6 @@ def serve_document(request, filename):
     # The path where the file will be saved temporarily (in memory)
     from io import BytesIO
     stream = BytesIO()
-    print("WTF",filename)
     try:
         # Download the file from S3 to a stream
         s3_client.download_fileobj(

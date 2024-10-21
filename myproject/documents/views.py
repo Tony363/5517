@@ -15,6 +15,7 @@ from django.contrib.auth import login
 from .forms import RegisterForm
 from dotenv import load_dotenv
 
+
 # Load the environment variables from .env file
 load_dotenv('myproject/aws_secrets.env')
 bucket_name = settings.AWS_STORAGE_BUCKET_NAME
@@ -99,17 +100,53 @@ def document_delete(request, key):
     # document.delete()
     return redirect('document_view')
 
-def serve_document(request, filename):
-    # Ensure the filename exists in S3 and then redirect to its URL
-    try:
-        # Check if the file exists by trying to get its metadata
-        response = s3_client.head_object(Bucket=settings.AWS_S3_BUCKET_NAME, Key=filename)
-        file_url = f"https://{settings.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/{filename}"
-        return redirect(file_url)
-    except s3_client.exceptions.ClientError as e:
-        # If a client error is thrown, then the file doesn't exist
-        raise Http404("Document does not exist")
+# def serve_document(request, filename):
+#     # Ensure the filename exists in S3 and then redirect to its URL
+#     try:
+#         # Check if the file exists by trying to get its metadata
+#         response = s3_client.head_object(Bucket=settings.AWS_S3_BUCKET_NAME, Key=filename)
+#         file_url = f"https://{settings.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/{filename}"
+#         return redirect(file_url)
+#     except s3_client.exceptions.ClientError as e:
+#         # If a client error is thrown, then the file doesn't exist
+#         raise Http404("Document does not exist")
     
+
+def serve_document(request, filename):
+    # Initialize the S3 client
+    s3_client = boto3.client('s3')
+
+    # The path where the file will be saved temporarily (in memory)
+    from io import BytesIO
+    stream = BytesIO()
+    print("WTF",filename)
+    try:
+        # Download the file from S3 to a stream
+        s3_client.download_fileobj(
+            Bucket=bucket_name,
+            Key=filename,
+            Fileobj=stream
+        )
+        # Set the stream position to the beginning
+        stream.seek(0)
+
+        # Create a response object and send the file directly to the user
+        response = HttpResponse(stream.read(), content_type='application/octet-stream')
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+
+    except s3_client.exceptions.NoSuchKey:
+        # If the file doesn't exist in S3, raise a 404 error
+        raise Http404("Document does not exist")
+
+    except Exception as e:
+        # Handle other possible exceptions (like permission issues, etc.)
+        raise Http404(f"An error occurred accessing the document: {str(e)}")
+
+    finally:
+        # Close the stream
+        stream.close()
+
 
 
 def upload_to_s3(file_name, bucket, object_name=None):

@@ -7,5 +7,6 @@ urlpatterns = [
     path('view/', views.document_view, name='document_view'),
     path('logout/', views.logout_view, name='logout'),
     path('delete/<str:key>/', views.document_delete, name='document_delete'),
-    path('<filename>', views.serve_document, name='serve_document'),
+    # path('<filename>', views.serve_document, name='serve_document'),
+    path('serve/<str:filename>/', views.serve_document, name='serve_document'),  # Updated for clarity
 ]

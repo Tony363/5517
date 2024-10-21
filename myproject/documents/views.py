@@ -46,6 +46,7 @@ def document_upload(request):
         if form.is_valid():
             file = request.FILES['file']
             file_name = default_storage.save(file.name, file)
+            print("WTF",file_name)
             local_file_path = default_storage.path(file_name)
 
             # Upload to S3

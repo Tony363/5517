@@ -45,41 +45,25 @@ def document_upload(request):
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
             file = request.FILES['file']
-            file_name = default_storage.save(file.name, file)  # Save the file temporarily to S3
+            file_name = default_storage.save(file.name, file)
+            local_file_path = default_storage.path(file_name)
 
-            try:
-                # Open the temporarily saved file to get a file object
-                with default_storage.open(file_name, 'rb') as file_obj:
-                    if upload_to_s3(file_obj, bucket_name, file_name):
-                        file_url = f"https://{bucket_name}.s3.amazonaws.com/{file_name}"
-                        messages.success(request, f'Success! Your file is saved at {file_url}')
-                    else:
-                        raise Exception("Failed to upload to S3")
-            except Exception as e:
-                messages.error(request, str(e))
-                default_storage.delete(file_name)  # Cleanup if manual upload fails
+            # Upload to S3
+            if upload_to_s3(local_file_path, bucket_name, file_name):
+                file_url = f"https://{bucket_name}.s3.amazonaws.com/{file_name}"
+                messages.success(request, f'Success! Your file is saved at {file_url}')
+            else:
+                messages.error(request, 'Failed to upload to S3')
                 return HttpResponse("Failed to upload to S3", status=500)
-            finally:
-                default_storage.delete(file_name)  # Ensure cleanup after the operation
-
-            return redirect('home')
         else:
             messages.error(request, 'Form is not valid')
             return HttpResponse("Form is not valid", status=400)
+        return redirect('home')
     else:
         form = UploadFileForm()  # An unbound form
 
     return render(request, 'documents/upload_form.html', {'form': form})
 
-def upload_to_s3(file_obj, bucket_name, file_name):
-    """ Manual S3 upload using boto3 for file-like objects """
-    s3_client = boto3.client('s3')
-    try:
-        s3_client.upload_fileobj(file_obj, bucket_name, file_name)
-        return True
-    except Exception as e:
-        print(e)
-        return False
 
 @login_required
 def document_view(request):
@@ -116,6 +100,16 @@ def document_delete(request, key):
     # document.delete()
     return redirect('document_view')
 
+# def serve_document(request, filename):
+#     # Ensure the filename exists in S3 and then redirect to its URL
+#     try:
+#         # Check if the file exists by trying to get its metadata
+#         response = s3_client.head_object(Bucket=settings.AWS_S3_BUCKET_NAME, Key=filename)
+#         file_url = f"https://{settings.AWS_S3_BUCKET_NAME}.s3.amazonaws.com/{filename}"
+#         return redirect(file_url)
+#     except s3_client.exceptions.ClientError as e:
+#         # If a client error is thrown, then the file doesn't exist
+#         raise Http404("Document does not exist")
     
 
 def serve_document(request, filename):
@@ -154,23 +148,23 @@ def serve_document(request, filename):
 
 
 
-# def upload_to_s3(file_name, bucket, object_name=None):
-#     """
-#     Upload a file to an S3 bucket using settings from Django settings.py
+def upload_to_s3(file_name, bucket, object_name=None):
+    """
+    Upload a file to an S3 bucket using settings from Django settings.py
 
-#     :param file_name: File to upload
-#     :param bucket: Bucket to upload to
-#     :param object_name: S3 object name. If not specified, file_name is used
-#     :return: True if file was uploaded, else False
-#     """
+    :param file_name: File to upload
+    :param bucket: Bucket to upload to
+    :param object_name: S3 object name. If not specified, file_name is used
+    :return: True if file was uploaded, else False
+    """
 
-#     try:
-#         # Upload the file
-#         s3_client.upload_file(file_name, bucket, object_name)
-#         return True
-#     except NoCredentialsError:
-#         print("Credentials not available")
-#         return False
+    try:
+        # Upload the file
+        s3_client.upload_file(file_name, bucket, object_name)
+        return True
+    except NoCredentialsError:
+        print("Credentials not available")
+        return False
 
 
 def register(request):

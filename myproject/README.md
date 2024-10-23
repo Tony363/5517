@@ -3,9 +3,9 @@
 
 ## Overview
 
-The Cloud Drive application is a Django-based project designed for document management, utilizing AWS S3 for cloud storage. The application supports user registration, login, document upload, viewing, and deletion.
 ![](diagram-export-10-22-2024-10_26_23-PM.png)
-
+The Cloud Drive application is a Django-based project designed for document management, utilizing AWS S3 for cloud storage. The application supports user registration, login, document upload, viewing, and deletion.
+!
 ## Table of Contents
 - [Application Features](#application-features)
 - [Setup and Configuration](#setup-and-configuration)

@@ -3,7 +3,7 @@ venv/*
 venv/
 *.jpg
 *.pdf
-*.png
+
 # Byte-compiled / optimized / DLL files
 *.zip
 __pycache__/

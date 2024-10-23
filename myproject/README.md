@@ -152,7 +152,7 @@ List of Python packages required for the project as specified in the `requiremen
 
 1. Clone the repository 
     ```bash
-    https://github.com/Tony363/5517.git
+    git clone  https://github.com/Tony363/5517.git
     cd myproject
     ```
 2. To install these dependencies, navigate to the project directory in your terminal and run the following command:

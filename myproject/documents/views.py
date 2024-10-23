@@ -1,19 +1,15 @@
-from django.shortcuts import render, redirect,get_object_or_404
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, Http404
 from django.contrib.auth.decorators import login_required
 from django.core.files.storage import default_storage
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
-from .forms import DocumentForm, UploadFileForm
-from .models import Document
+from .forms import  UploadFileForm,RegisterForm
 from botocore.exceptions import NoCredentialsError
-
 
 from django.views.decorators.http import require_POST
 from django.contrib.auth import login
-from .forms import RegisterForm
-
 
 import os
 import boto3

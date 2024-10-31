@@ -2,7 +2,7 @@ import numpy as np
 
 def simple_pagerank(
     adjacency_matrix:np.ndarray, 
-    epsilon:np.float64=1e-6, 
+    epsilon:np.float64=1e-3, 
     max_iterations:int=100
 )->np.ndarray:
     """
@@ -16,7 +16,7 @@ def simple_pagerank(
     Returns:
         np.ndarray: PageRank vector.
     """
-    adjacency_matrix = adjacency_matrix 
+    adjacency_matrix = adjacency_matrix.T 
     N = adjacency_matrix.shape[0]
     # Convert adjacency matrix to stochastic matrix
     out_degree = adjacency_matrix.sum(axis=0)
@@ -40,8 +40,8 @@ def simple_pagerank(
 def modified_pagerank(
     adjacency_matrix: np.ndarray, 
     E:np.float64, 
-    c1:np.float64=0.85, 
-    epsilon:np.float64=1e-6, 
+    c1:np.float64=0.80, 
+    epsilon:np.float64=1e-3, 
     max_iterations:int=100
 )->np.ndarray:
     """
@@ -57,7 +57,7 @@ def modified_pagerank(
     Returns:
         np.ndarray: Modified PageRank vector.
     """
-    adjacency_matrix = adjacency_matrix 
+    adjacency_matrix = adjacency_matrix.T 
     N = adjacency_matrix.shape[0]
     # Convert adjacency matrix to stochastic matrix
     out_degree = adjacency_matrix.sum(axis=0)
@@ -72,7 +72,6 @@ def modified_pagerank(
     c2_factor = 1 - c1
 
     for iteration in range(max_iterations):
-        # print(c1_factor * (stochastic_matrix @ R_prime))
         R_new = c1_factor * (stochastic_matrix @ R_prime) + c2_factor * E
         delta = np.linalg.norm(R_new - R_prime, 1)
         print(f"Iteration {iteration + 1}: {R_new}")

@@ -88,7 +88,7 @@ if __name__ == "__main__":
     N = len(pages)
     adjacency_matrix = np.array([
         [0, 1, 1],  # A is linked by C
-        [1, 0, 1],  # B is linked by A
+        [1, 0, 0],  # B is linked by A
         [1, 0, 0],  # C is linked by A and B
     ])
 
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     E = np.array([1]*N)  # Uniform external influence
 
     print("\nModified PageRank:")
-    modified_pagerank_values = modified_pagerank(adjacency_matrix, E,c1=0.8)
+    modified_pagerank_values = modified_pagerank(adjacency_matrix, E,c1=0.85)
     for page, rank in zip(pages, modified_pagerank_values):
         print(f"PR’({page}) = {rank:.6f}")
 
